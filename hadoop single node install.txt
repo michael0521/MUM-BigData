@@ -1,0 +1,38 @@
+1. Configure JAVA_HOME in both Hadoop and OS
+a. Option Edit .bash_profile, add these 2 lines to the “hadoop” user’s ~/.bashrc on all nodes:
+export JAVA_HOME=/usr/<JDK_ROOT>
+export PATH=$JAVA_HOME/bin:$PATH
+or
+b. Option Edit hadoop-env.sh , go to extracted <hadoop-HOME>
+[root@localhost hadoop2]# find hadoop-2.7.0/ -name hadoop-env.sh
+hadoop-2.7.0/etc/hadoop/hadoop-env.sh
+Edit hadoop-evn.sh and set to the root of your Java installation
+export JAVA_HOME=/usr/<JDK_ROOT>
+Test to Run
+$ bin/hadoop version
+2. Setup passphraseless ssh
+If you cannot ssh to localhost without a passphrase, execute the following commands:
+  $ ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+  $ cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys       
+  $ export HADOOP\_PREFIX=<HADOOP_HOME>
+3. Shutdown firewall of OS (just take CentOS 7 as an example)
+In order to visit application website from other machine, you must stop firewall.
+To stop firewalld, run the following command as root:
+systemctl stop firewalld                                    
+To check the Status of Firewalld
+To check the status of firewalld, run the following command as root:
+systemctl status firewalld
+To disable firewalld, run the following command as root:
+systemctl disable firewalld
+
+4. Configure /etc/hosts if you're using cluster and hostname in *.xml
+If you don't configure hostname you used, you may run into 
+15/09/02 17:34:58 INFO metrics.MetricsUtil: Unable to obtain hostName
+java.net.UnknownHostException: hadoop01: hadoop01: unknown error
+ 
+5. Standalone Operation
+In standalone mode, you don' t need start any hadoop daemons. And default properties of Hadoop are set for standalone mode.
+$ mkdir input
+$ cp etc/hadoop/*.xml input
+$ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.0.jar grep input output 'dfs[a-z.]+'
+$ cat output/*
